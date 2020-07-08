@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">Storage</string>
+
+    <!-- Snackbar -->
+    <string name="snack_no_media">No media on device</string>
+    <string name="snack_not_available">Feature only available in API 30</string>
+    <string name="snack_only_one_selected">You can only have one item selected</string>
+
+    <!-- Dialog -->
+    <string name="dialog_title_information">Information</string>
+    <string name="dialog_message_information">Selected image: %s with size: %s, modified in %s</string>
+    <string name="dialog_message_information_multiple">Selected:</string>
+    <string name="dialog_action_negative">Dismiss</string>
+
+    <!-- Filter -->
+    <string name="filter_images">Images</string>
+    <string name="filter_videos">Videos</string>
+    <string name="filter_starred">Starred</string>
+    <string name="filter_trash">Trash</string>
+    
+    <!-- Actions -->
+    <string name="action_favourites">Add to favourites</string>
+    <string name="action_save_copy">Save copy</string>
+    <string name="action_save_copy_on_location">Save copy on location</string>
+    <string name="action_information">More information</string>
+    <string name="action_black_white">Update to Black and White</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_trash">Trash</string>
+
+    <string name="action_selected">%d selected</string>
+
+    <!-- Permissions -->
+    <string name="permission_declined">You need to grant storage permission.</string>
+    <string name="permission_action">Grant</string>
+
+    <!-- Content Description -->
+    <string name="description_image">Image</string>
+</resources>
