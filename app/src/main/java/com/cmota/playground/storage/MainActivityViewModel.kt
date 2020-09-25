@@ -10,8 +10,10 @@ import android.graphics.*
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -22,6 +24,8 @@ import com.cmota.playground.storage.utils.registerObserver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 
 /**
  * Class adapted from Android Storage samples repository, available at:
@@ -217,15 +221,44 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
     fun duplicate(items: List<Media>) {
         viewModelScope.launch {
             for (media in items) {
-                duplicateMedia(getApplication<Application>().contentResolver, media)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    duplicateMedia(getApplication<Application>().contentResolver, media)
+                } else {
+                    duplicateMediaPre29(getApplication<Application>().contentResolver, media)
+                }
             }
         }
     }
 
+    private suspend fun duplicateMediaPre29(resolver: ContentResolver, media: Media) {
+        withContext(Dispatchers.IO) {
+            val directory = File("${Environment.getExternalStorageDirectory()}")
+            if (!directory.exists()) {
+                directory.mkdirs()
+            }
+
+            val filename = "${media.name}-cp"
+            val file = File(directory, filename)
+            val bitmap = MediaStore.Images.Media.getBitmap(resolver, media.uri)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, FileOutputStream(file))
+
+            val date = System.currentTimeMillis()
+            val values = ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME, filename)
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+                put(MediaStore.MediaColumns.DATE_ADDED, date)
+                put(MediaStore.MediaColumns.DATE_MODIFIED, date)
+            }
+
+            values.put(MediaStore.Images.Media.DATA, file.absolutePath)
+            resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
     private suspend fun duplicateMedia(resolver: ContentResolver, media: Media) {
         withContext(Dispatchers.IO) {
             val collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-
             val date = System.currentTimeMillis()
             val newMedia = ContentValues().apply {
                 put(MediaStore.Images.Media.DISPLAY_NAME, "${media.name}-cp")
@@ -236,12 +269,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
             }
 
             val newMediaUri = resolver.insert(collection, newMedia)
-
-            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                ImageDecoder.decodeBitmap(ImageDecoder.createSource(resolver, media.uri))
-            } else {
-                MediaStore.Images.Media.getBitmap(resolver, media.uri)
-            }
+            val bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(resolver, media.uri))
 
             resolver.openOutputStream(newMediaUri!!, "w").use {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)

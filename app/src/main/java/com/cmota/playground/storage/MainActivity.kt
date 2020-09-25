@@ -20,7 +20,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.view.ActionMode
 import androidx.core.app.ActivityCompat
 import androidx.exifinterface.media.ExifInterface
-import androidx.lifecycle.Observer
 import androidx.recyclerview.selection.SelectionPredicates
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.StorageStrategy
@@ -196,7 +195,7 @@ class MainActivity : AppCompatActivity(), ActionMode.Callback {
     }
 
     private fun setupObservers() {
-        viewModel.media.observe(this, Observer { media ->
+        viewModel.media.observe(this, { media ->
             imagesAdapter.submitList(media)
 
             if (media.isEmpty()) {
@@ -208,7 +207,7 @@ class MainActivity : AppCompatActivity(), ActionMode.Callback {
             viewModel.loadMedia(filterAdapter.selected)
         }
 
-        viewModel.permissionNeededForDelete.observe(this, Observer { sender ->
+        viewModel.permissionNeededForDelete.observe(this, { sender ->
             if (sender == null) {
                 actionMode?.finish()
             } else {
@@ -223,7 +222,7 @@ class MainActivity : AppCompatActivity(), ActionMode.Callback {
             }
         })
 
-        viewModel.permissionNeededForUpdate.observe(this, Observer { sender ->
+        viewModel.permissionNeededForUpdate.observe(this, { sender ->
             if (sender == null) {
                 actionMode?.finish()
             } else {

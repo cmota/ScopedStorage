@@ -9,7 +9,6 @@ import android.os.Build
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import com.cmota.playground.storage.R
-import java.io.File
 
 val FILTERS = listOf(R.string.filter_images,
     R.string.filter_videos,
@@ -30,13 +29,6 @@ fun getSettingsIntent(packageName: String): Intent{
     intent.addCategory(Intent.CATEGORY_DEFAULT)
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     return intent
-}
-
-@Suppress("deprecation")
-fun sendScanFileBroadcast(context: Context, file: File) {
-    val intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
-    intent.data = Uri.fromFile(file)
-    context.sendBroadcast(intent)
 }
 
 fun hasSdkHigherThan(sdk: Int): Boolean {
